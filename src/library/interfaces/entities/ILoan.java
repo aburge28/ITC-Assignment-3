@@ -11,7 +11,10 @@ public interface ILoan {
 	
 	public void complete();
 	
-	public boolean isOverDue();
+	public static boolean isOverDue() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
 	public boolean checkOverDue(Date currentDate);
 	

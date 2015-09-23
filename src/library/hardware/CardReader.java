@@ -56,14 +56,14 @@ public class CardReader extends JFrame implements ICardReader {
 		panel.add(textField);
 		textField.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		textField.setColumns(10);
-		textField.setEditable(false);
+		//textField.setEditable(false);
 		
 		btnReadCard = new JButton("Swipe Card");
 		btnReadCard.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (listener == null) {
-					throw new RuntimeException("CardReader: listener is null");
-				}
+			//	if (listener == null) {
+			//		throw new RuntimeException("CardReader: listener is null");
+			//	}
 				String text = textField.getText();
 				try {
 					int memberId = new Integer(text).intValue();
@@ -73,7 +73,7 @@ public class CardReader extends JFrame implements ICardReader {
 					listener.cardSwiped(memberId);
 				}
 				catch (NumberFormatException e) {
-					//e.printStackTrace(System.err);
+					e.printStackTrace(System.err);
 					lblErrorMesg.setText("Member Id must be a positive intger");
 				}
 				textField.setText("");
@@ -81,7 +81,7 @@ public class CardReader extends JFrame implements ICardReader {
 		});
 		btnReadCard.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnReadCard.setBounds(121, 88, 150, 40);
-		btnReadCard.setEnabled(false);
+		//btnReadCard.setEnabled(false);
 		panel.add(btnReadCard);
 	}
 
