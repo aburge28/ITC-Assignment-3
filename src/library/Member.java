@@ -12,7 +12,8 @@ public class Member implements IMember {
 	private String lastName_;
 	private String contactPhone_;
 	private String emailAddress_;
-	private int Id_;
+	public static int Id_;
+	public static IMember firstName;
 	private float totalFines_;
 	private EMemberState state_;
 	private ILoan loanList_;
@@ -21,10 +22,10 @@ public class Member implements IMember {
 	public Member (String firstName, String lastName, String contactPhone, String emailAddress, int memberID) {
 		firstName_ = firstName;
 		lastName_ = lastName;
-		contactPhone = contactPhone_;
-		emailAddress = emailAddress_;
-		memberID = Id_;
-		if (firstName_== null || lastName_ == null || contactPhone_ == null || emailAddress_ == null || Id_ < 0) {
+		contactPhone_ = contactPhone;
+		emailAddress_ = emailAddress;
+		Id_ = memberID;
+		if (firstName == null || lastName == null || contactPhone == null || emailAddress == null || memberID < 0) {
 			throw new IllegalArgumentException ("Values cannot be null and Id cannot be less than zero");
 		}
 	}
@@ -42,10 +43,10 @@ public class Member implements IMember {
 	@Override
 	public boolean hasReachedLoanLimit() {
 		if (((List<ILoan>) loanList_).size() > LOAN_LIMIT) {
-			return false;
+			return true;
 		}
 		else {
-			return true;
+			return false;
 		}
 	}
 
@@ -116,7 +117,7 @@ public class Member implements IMember {
 
 	@Override
 	public String getFirstName() {
-		return firstName_;
+		return firstName.toString();
 	}
 
 	@Override
@@ -134,8 +135,29 @@ public class Member implements IMember {
 		return emailAddress_;
 	}
 
-	@Override
 	public int getID() {
 		return Id_;
+	}
+
+	public String toString() {
+		return firstName + lastName_ + contactPhone_ + emailAddress_ + Id_;
+	}
+
+	private boolean borrowingAllowed() {
+		if (hasOverDueLoans() == true || hasReachedFineLimit() == true || hasReachedLoanLimit() == true) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
+	private void updateState() {
+		if (borrowingAllowed() == true) {
+			state_ = EMemberState.BORROWING_ALLOWED;
+		}
+		else {
+			state_ = EMemberState.BORROWING_DISALLOWED;
+		}
 	}
 }

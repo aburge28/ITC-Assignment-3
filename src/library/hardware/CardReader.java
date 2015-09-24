@@ -56,7 +56,7 @@ public class CardReader extends JFrame implements ICardReader {
 		panel.add(textField);
 		textField.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		textField.setColumns(10);
-		//textField.setEditable(false);
+		textField.setEditable(false);
 		
 		btnReadCard = new JButton("Swipe Card");
 		btnReadCard.addActionListener(new ActionListener() {
@@ -81,7 +81,7 @@ public class CardReader extends JFrame implements ICardReader {
 		});
 		btnReadCard.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnReadCard.setBounds(121, 88, 150, 40);
-		//btnReadCard.setEnabled(false);
+		btnReadCard.setEnabled(false);
 		panel.add(btnReadCard);
 	}
 

@@ -10,7 +10,10 @@ public interface IMemberDAO {
 		
 		public IMember getMemberByID(int id);
 		
-		public List<IMember> listMembers();
+		public static List<IMember> listMembers() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 		
 		public List<IMember> findMembersByLastName(String lastName);
 
