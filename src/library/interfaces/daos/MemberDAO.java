@@ -52,8 +52,8 @@ public class MemberDAO implements IMemberDAO {
 	public List<IMember> findMembersByEmailAddress(String emailAddress) {
 		if (listMembers().contains(emailAddress)) {
 			int index = IMemberDAO.listMembers().indexOf(emailAddress);
-			IMember email = listMembers().get(index);
-			return (List<IMember>) email;
+			IMember name = listMembers().get(index);
+			return (List<IMember>) name;
 		}
 		else {
 			return null;
