@@ -3,6 +3,7 @@ package library;
 import java.util.List;
 
 import library.interfaces.daos.ILoanDAO;
+import library.interfaces.entities.EBookState;
 import library.interfaces.entities.EMemberState;
 import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
@@ -17,18 +18,36 @@ public class Member implements IMember {
 	private float totalFines_;
 	private EMemberState state_;
 	private ILoan loanList_;
+	
+	private ILoan loan = null;
+	
 
 
 	public Member (String firstName, String lastName, String contactPhone, String emailAddress, int memberID) {
+		if ( !sane(firstName, lastName, contactPhone, emailAddress, memberID)) {
+			throw new IllegalArgumentException("Member: constructor : bad parameters");
+		}
 		firstName_ = firstName;
 		lastName_ = lastName;
 		contactPhone_ = contactPhone;
 		emailAddress_ = emailAddress;
 		Id_ = memberID;
+		this.loan = null;
+		
 		if (firstName == null || lastName == null || contactPhone == null || emailAddress == null || memberID < 0) {
 			throw new IllegalArgumentException ("Values cannot be null and Id cannot be less than zero");
 		}
 	}
+	
+	private boolean sane(String firstName, String lastName, String contactPhone, String emailAddress, int memberID) {
+		return  ( firstName != null     && !firstName.isEmpty()     &&
+				  lastName != null      && !lastName.isEmpty()      &&
+				  contactPhone != null && !contactPhone.isEmpty() &&
+				  emailAddress != null && !emailAddress.isEmpty() &&
+				  memberID > 0 
+				);
+	}
+	
 
 	@Override
 	public boolean hasOverDueLoans() {
@@ -140,7 +159,8 @@ public class Member implements IMember {
 	}
 
 	public String toString() {
-		return firstName + lastName_ + contactPhone_ + emailAddress_ + Id_;
+		return String.format("Id: %d\nFirst Name: %s\nLast Name: %s\nContact Phone: %s\nEmailAddress: %s",
+				Id_, firstName, lastName_, contactPhone_, emailAddress_);
 	}
 
 	private boolean borrowingAllowed() {
