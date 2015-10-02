@@ -35,6 +35,7 @@ public class Loan implements ILoan {
 				  returnDate != null && 
 				  borrowDate.compareTo(returnDate) <= 0);
 	}
+	
 
 	@Override
 	public void commit(int loanId) {

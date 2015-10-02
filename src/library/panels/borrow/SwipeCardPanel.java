@@ -9,6 +9,7 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.UIManager;
 import java.awt.Color;
@@ -55,6 +56,5 @@ public class SwipeCardPanel extends ABorrowPanel {
 	public void displayErrorMessage(String errorMesg) {
 		lblErrMesg.setText(errorMesg);		
 	}
-
 	
 }

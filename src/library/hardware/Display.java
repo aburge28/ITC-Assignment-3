@@ -11,7 +11,7 @@ public class Display extends JFrame implements IDisplay {
 
 	private static final long serialVersionUID = 1L;
 	
-	private JPanel current; 
+	private JPanel current;
 
 	public Display() {
 		setTitle("Display");

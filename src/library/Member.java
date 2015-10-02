@@ -1,5 +1,7 @@
 package library;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import library.interfaces.daos.ILoanDAO;
@@ -13,15 +15,11 @@ public class Member implements IMember {
 	private String lastName_;
 	private String contactPhone_;
 	private String emailAddress_;
-	public static int Id_;
-	public static IMember firstName;
+	private int Id_;
+
 	private float totalFines_;
 	private EMemberState state_;
-	private ILoan loanList_;
-	
-	private ILoan loan = null;
-	
-
+	private List<ILoan> loanList_;
 
 	public Member (String firstName, String lastName, String contactPhone, String emailAddress, int memberID) {
 		if ( !sane(firstName, lastName, contactPhone, emailAddress, memberID)) {
@@ -32,60 +30,47 @@ public class Member implements IMember {
 		contactPhone_ = contactPhone;
 		emailAddress_ = emailAddress;
 		Id_ = memberID;
-		this.loan = null;
-		
-		if (firstName == null || lastName == null || contactPhone == null || emailAddress == null || memberID < 0) {
-			throw new IllegalArgumentException ("Values cannot be null and Id cannot be less than zero");
-		}
+		loanList_ = new ArrayList<ILoan>();
+		totalFines_ = 0.0f;
+		state_ = EMemberState.BORROWING_ALLOWED;
 	}
-	
-	private boolean sane(String firstName, String lastName, String contactPhone, String emailAddress, int memberID) {
-		return  ( firstName != null     && !firstName.isEmpty()     &&
-				  lastName != null      && !lastName.isEmpty()      &&
-				  contactPhone != null && !contactPhone.isEmpty() &&
-				  emailAddress != null && !emailAddress.isEmpty() &&
-				  memberID > 0 
+
+	private boolean sane(String firstName, String lastName, String contactPhone,
+			String emailAddress, int memberID) {
+		return  ( firstName != null    && !firstName.isEmpty()    &&
+				lastName != null     && !lastName.isEmpty()     &&
+				contactPhone != null && !contactPhone.isEmpty() &&
+				emailAddress != null && !emailAddress.isEmpty() &&
+				memberID > 0 
 				);
 	}
-	
 
 	@Override
 	public boolean hasOverDueLoans() {
-		if (ILoan.isOverDue() == true) {
-			return true;
+		for (ILoan loan : loanList_) {
+			if (ILoan.isOverDue()) {
+				return true;
+			}
 		}
-		else {
-			return false;
-		}
-	}
+		return false;
+	} 
 
 	@Override
 	public boolean hasReachedLoanLimit() {
-		if (((List<ILoan>) loanList_).size() > LOAN_LIMIT) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		boolean bl = loanList_.size() >= IMember.LOAN_LIMIT;
+		return bl;
 	}
 
 	@Override
 	public boolean hasFinesPayable() {
-		if (totalFines_ > 0) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		boolean bl = totalFines_ > 0.0f;
+		return bl;
 	}
 
 	@Override
 	public boolean hasReachedFineLimit() {
-		if (totalFines_ > IMember.FINE_LIMIT) {
-			return true;
-		} else {
-			return false;
-		}
+		boolean bl = totalFines_ >= IMember.FINE_LIMIT;
+		return bl;
 	}
 
 	@Override
@@ -95,38 +80,43 @@ public class Member implements IMember {
 
 	@Override
 	public void addFine(float fine) {
-		fine = totalFines_++;
 		if (fine < 0) {
-			throw new IllegalArgumentException ("Amount is negative");
+			throw new RuntimeException(String.format("The fine cannot be negative"));
 		}
+		totalFines_ += fine;
+		updateState();
 	}
 
 	@Override
 	public void payFine(float payment) {
-		payment = totalFines_--;
-		if (payment < 0) {
-			throw new IllegalArgumentException ("Amount paid is negative");
+		if (payment < 0 || payment > totalFines_) {
+			throw new RuntimeException(String.format("Payment cannot be grater than the fine or negative"));
 		}
-		if (payment > totalFines_) {
-			throw new IllegalArgumentException("Amount paid is more than the fines");
-		}
+		totalFines_ -= payment;
+		updateState();
 	}
 
 	@Override
 	public void addLoan(ILoan loan) {
-		((List<ILoan>) loanList_).add(loan);
-
+		if (!borrowingAllowed()) {
+			throw new RuntimeException(String.format("Member: addLoan: Illegal operation in state: %s", state_));
+		}
+		loanList_.add(loan);
+		updateState();
 	}
 
 	@Override
 	public List<ILoan> getLoans() {
-		return (List<ILoan>) loanList_;
+		return Collections.unmodifiableList(loanList_);
 	}
 
 	@Override
 	public void removeLoan(ILoan loan) {
-		((List<ILoan>) loanList_).remove(loan);
-
+		if (loan == null || !loanList_.contains(loan)) {
+			throw new RuntimeException(String.format("loan is null or cannot be found in loanList"));
+		}
+		loanList_.remove(loan);
+		updateState();
 	}
 
 	@Override
@@ -136,7 +126,7 @@ public class Member implements IMember {
 
 	@Override
 	public String getFirstName() {
-		return firstName.toString();
+		return firstName_;
 	}
 
 	@Override
@@ -158,22 +148,23 @@ public class Member implements IMember {
 		return Id_;
 	}
 
+	@Override
 	public String toString() {
-		return String.format("Id: %d\nFirst Name: %s\nLast Name: %s\nContact Phone: %s\nEmailAddress: %s",
-				Id_, firstName, lastName_, contactPhone_, emailAddress_);
+		return String.format(
+				"Id: %d\nName: %s %s\nContact Phone: %s\nEmail: %s\nOutstanding Charges: %0.2f", Id_,
+				firstName_, lastName_, contactPhone_, emailAddress_, totalFines_);
 	}
 
 	private boolean borrowingAllowed() {
-		if (hasOverDueLoans() == true || hasReachedFineLimit() == true || hasReachedLoanLimit() == true) {
-			return false;
-		}
-		else {
-			return true;
-		}
+		boolean bl = !hasOverDueLoans() &&
+				!hasReachedFineLimit() &&
+				!hasReachedLoanLimit();
+		return bl;
+
 	}
 
 	private void updateState() {
-		if (borrowingAllowed() == true) {
+		if (borrowingAllowed()) {
 			state_ = EMemberState.BORROWING_ALLOWED;
 		}
 		else {

@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import library.interfaces.entities.IBook;
 import library.interfaces.entities.IMember;
-import library.Member;
+import library.interfaces.daos.IMemberDAO;
+import library.interfaces.daos.IMemberHelper;
 
 public class MemberDAO implements IMemberDAO {
 	private int nextID;
@@ -19,29 +19,29 @@ public class MemberDAO implements IMemberDAO {
 		if (helper == null) {
 			throw new IllegalArgumentException ("Helper cannot be null");
 		}
-		nextID = 1;
+		this.nextID = 1;
 		this.helper = helper;
-		memberMap = new HashMap<Integer, IMember>();
+		this.memberMap = new HashMap<Integer, IMember>();
 	}
 
 	public MemberDAO(IMemberHelper helper, Map<Integer, IMember> memberMap) {
 		this(helper);
-		if (helper == null ) {
-			throw new IllegalArgumentException(String.format("MemberDAO : constructor : bookMap cannot be null."));
+		if (memberMap == null ) {
+			throw new IllegalArgumentException(String.format("memberMap cannot be null"));
 		}
 		this.memberMap = memberMap;
 	}
 
 	public IMember addMember (String firstName, String lastName, String contactPhone, String emailAddress) {
 		int id = getNextId();
-		IMember member = IMemberHelper.makeMember(firstName, lastName, contactPhone, emailAddress, id);
+		IMember member = helper.makeMember(firstName, lastName, contactPhone, emailAddress, id);
 		memberMap.put(Integer.valueOf(id), member);
 		return member;
 	}
 
 	@Override
 	public IMember getMemberByID(int id) {
-		if (memberMap.containsKey(Integer.valueOf(id))) {
+		if (memberMap.keySet().contains(Integer.valueOf(id))) {
 			return memberMap.get(Integer.valueOf(id));
 		}
 		return null;
@@ -55,7 +55,7 @@ public class MemberDAO implements IMemberDAO {
 	public List<IMember> findMembersByLastName(String lastName) {
 		if ( lastName == null || lastName.isEmpty()) {
 			throw new IllegalArgumentException(
-					String.format("MemberDAO : findMembersByLastName : lastName cannot be null or blank"));
+					String.format("lastName cannot be null or blank"));
 		}
 		List<IMember> list = new ArrayList<IMember>();
 		for (IMember m : memberMap.values()) {
@@ -69,7 +69,7 @@ public class MemberDAO implements IMemberDAO {
 	public List<IMember> findMembersByEmailAddress(String emailAddress) {
 		if ( emailAddress == null || emailAddress.isEmpty()) {
 			throw new IllegalArgumentException(
-					String.format("MemberDAO : findMembersByEmailAddress : emailAddress cannot be null or blank"));
+					String.format("emailAddress cannot be null or blank"));
 		}
 		List<IMember> list = new ArrayList<IMember>();
 		for (IMember m : memberMap.values()) {
@@ -84,7 +84,7 @@ public class MemberDAO implements IMemberDAO {
 	public List<IMember> findMembersByNames(String firstName, String lastName) {
 		if ( firstName == null || firstName.isEmpty() ||  lastName == null || lastName.isEmpty()) {
 			throw new IllegalArgumentException(
-					String.format("MemberDAO : findMembersByNames : firstName and lastName cannot be null or blank"));
+					String.format(" firstName and lastName cannot be null or blank"));
 		}
 		List<IMember> list = new ArrayList<IMember>();
 		for (IMember m : memberMap.values()) {
